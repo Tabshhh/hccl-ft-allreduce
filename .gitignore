@@ -1,0 +1,19 @@
+# ---------- 不入库的内容 ----------
+
+# 17 个上游源码仓的本地克隆（约 1.7G）
+# 全部是公开可拉的，按 REFS.md §1.1 / §1.2 的地址按需重新克隆
+code/
+
+# arXiv 论文 PDF（第三方版权材料，公开仓不转载）
+# 用 scripts/fetch-papers.sh 按 arXiv 编号重新下载
+doc/papers/*.pdf
+
+# Claude Code 本机配置（含本机绝对路径，与机器绑定）
+.claude/
+
+# ---------- 本机临时产物 ----------
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db

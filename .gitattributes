@@ -1,0 +1,6 @@
+# 外网是 Windows、内网可能是 Linux，统一换行符，
+# 否则每换一台机器整个文件都会被当成"改过了"，diff 全是噪音，.sh 也可能因 CRLF 跑不起来。
+* text=auto
+*.sh   text eol=lf
+*.md   text eol=lf
+*.tsv  text eol=lf

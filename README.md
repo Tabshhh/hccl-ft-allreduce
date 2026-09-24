@@ -35,12 +35,26 @@
 ## 在新机器上恢复
 
 ```bash
-git clone https://github.com/Tabshhh/hccl-ft-allreduce.git
+git clone https://gitcode.com/Tabs__/hccl-ft-allreduce.git
 cd hccl-ft-allreduce
 bash scripts/fetch-papers.sh    # 可选：重新下载 2 篇论文 PDF
 ```
 
-公开仓，**不需要任何凭据**。之后按需从 REFS.md 拉源码仓。
+公开仓，clone **不需要任何凭据**。之后按需从 REFS.md 拉源码仓。
+
+### 两个远端
+
+| 远端名 | 地址 | 用途 |
+|---|---|---|
+| `origin` | `gitcode.com/Tabs__/hccl-ft-allreduce` | **主力**，内外网日常同步都走它 |
+| `github` | `github.com/Tabshhh/hccl-ft-allreduce` | 备份镜像，**不参与日常流程** |
+
+选 GitCode 做主力是因为内外网都直连可用、不用代理；GitHub 在外网要挂代理、在内网连接不稳，
+不适合承担同步职责。想给 GitHub 那份留备份时手动推一次即可：
+
+```bash
+git push github main
+```
 
 ## 双向同步纪律
 
@@ -57,24 +71,46 @@ git add -A && git commit -m "更新 02-HCCL架构 的 AllReduce 路径" && git p
 > **最容易出问题的是「两边都改了同一段却不拉」。** git 不会告诉你内容已经过期，
 > 它只会静默地保留其中一份——而且往往是错的那份。所以别攒着，半天一天的推一次。
 
-### 外网机器：GitHub 要挂代理
+## 推送凭据（每台机器配置一次）
 
-本机 GitHub 直连时通时不通，本地代理 `127.0.0.1:7897` 是可靠的。代理开着时：
+clone 不需要凭据，**push 需要**。GitCode 用访问令牌认证，配好后 git 自动读取，平时不用手动输入。
+
+**1. 生成令牌**：GitCode → 头像 → 设置 → 访问令牌 → 新建，勾选 `api` 和 `write_repository`。
+
+**2. 存到文件**：
 
 ```bash
-git -c http.proxy=http://127.0.0.1:7897 push
-git -c http.proxy=http://127.0.0.1:7897 pull --rebase
+printf '%s' '你的令牌' > ~/.gitcode_token
 ```
 
-或者代理稳定常开的话，配成仅对 GitHub 生效（**不要**设全局 `http.proxy`，代理一关 git 就全废）：
+**3. 装凭据助手**（在本仓库根目录执行，`$PWD` 要展开成绝对路径）：
+
+```bash
+git config --global gitcode.username "你的GitCode用户名"
+git config --global credential.https://gitcode.com.helper "!$PWD/scripts/gitcode-credential.sh"
+```
+
+这样令牌只存在于 `~/.gitcode_token` 一个文件里，**不进 `.git/config`，也不进 remote URL**。
+
+**令牌有有效期。** 过期时 push 会报 401，重新生成一个覆盖 `~/.gitcode_token` 即可，
+git 配置不用动。想省事就在生成时把有效期拉到最长；或者改用 SSH 密钥（默认不过期）。
+
+### 外网机器：推 GitHub 备份要挂代理
+
+本机 GitHub 直连时通时不通，本地代理 `127.0.0.1:7897` 是可靠的：
+
+```bash
+git -c http.proxy=http://127.0.0.1:7897 push github main
+```
+
+或者代理稳定常开的话，配成仅对 GitHub 生效（**不要**设全局 `http.proxy`，代理一关 git 全废）：
 
 ```bash
 git config --global http.https://github.com.proxy http://127.0.0.1:7897
 ```
 
-GitCode 直连即可，不需要代理。
+**GitCode 直连即可，不需要代理。**
 
 ### 内网机器
 
-不需要任何特殊配置，`git clone` / `pull` / `push` 直接可用。如果内网访问 GitHub 需要代理，
-同样用上面的 `-c http.proxy=...` 方式临时指定。
+GitCode 直连可用，按上面「推送凭据」三步配一次即可，**不需要为 GitHub 做任何配置**。

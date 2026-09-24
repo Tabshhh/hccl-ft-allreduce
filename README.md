@@ -87,8 +87,15 @@ printf '%s' '你的令牌' > ~/.gitcode_token
 
 ```bash
 git config --global gitcode.username "你的GitCode用户名"
-git config --global credential.https://gitcode.com.helper "!$PWD/scripts/gitcode-credential.sh"
+git config --global credential.https://gitcode.com.helper ""     # ← 这一行不能省，见下
+git config --global --add credential.https://gitcode.com.helper "!$PWD/scripts/gitcode-credential.sh"
 ```
+
+> **为什么要先设一个空的 helper？**
+> git 的凭据助手是**多层叠加**的：系统级默认装了 Git Credential Manager（`manager`），
+> 它会在你的助手之前抢答，返回一份 GitCode 不认的凭据，push 就报
+> `HTTP Basic: Access denied`。先写一条空值可以把继承来的列表**清空**，再 `--add` 你自己
+> 的助手。`gh auth setup-git` 给 github.com 写配置时用的也是这个套路。
 
 这样令牌只存在于 `~/.gitcode_token` 一个文件里，**不进 `.git/config`，也不进 remote URL**。
 
